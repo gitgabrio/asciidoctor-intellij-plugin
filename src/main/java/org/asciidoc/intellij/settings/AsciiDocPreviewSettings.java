@@ -33,15 +33,22 @@ public final class AsciiDocPreviewSettings {
   @NotNull
   private AsciiDocHtmlPanel.PreviewTheme myPreviewTheme = AsciiDocHtmlPanel.PreviewTheme.INTELLIJ;
 
+
+  @Attribute("AsciiDocAttributes")
+  @NotNull
+  private String asciiDocAttributes;
+
   public AsciiDocPreviewSettings() {
   }
 
   public AsciiDocPreviewSettings(@NotNull SplitFileEditor.SplitEditorLayout splitEditorLayout,
                                  @NotNull AsciiDocHtmlPanelProvider.ProviderInfo htmlPanelProviderInfo,
-                                 @NotNull AsciiDocHtmlPanel.PreviewTheme previewTheme) {
+                                 @NotNull AsciiDocHtmlPanel.PreviewTheme previewTheme,
+                                 @NotNull String asciiDocAttributesVariable) {
     mySplitEditorLayout = splitEditorLayout;
     myHtmlPanelProviderInfo = htmlPanelProviderInfo;
     myPreviewTheme = previewTheme;
+    asciiDocAttributes = asciiDocAttributesVariable;
   }
 
   @NotNull
@@ -65,6 +72,14 @@ public final class AsciiDocPreviewSettings {
     return myHtmlPanelProviderInfo;
   }
 
+  @NotNull
+  public String getAsciiDocAttributes() {
+    if (asciiDocAttributes == null) {
+      return "";
+    }
+    return asciiDocAttributes;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -75,8 +90,7 @@ public final class AsciiDocPreviewSettings {
     if (mySplitEditorLayout != settings.mySplitEditorLayout) return false;
     if (myPreviewTheme != settings.myPreviewTheme) return false;
     if (!myHtmlPanelProviderInfo.equals(settings.myHtmlPanelProviderInfo)) return false;
-
-    return true;
+    return asciiDocAttributes.equals(settings.asciiDocAttributes);
   }
 
   @Override
@@ -84,6 +98,7 @@ public final class AsciiDocPreviewSettings {
     int result = mySplitEditorLayout.hashCode();
     result = 31 * result + myHtmlPanelProviderInfo.hashCode();
     result = 31 * result + myPreviewTheme.hashCode();
+    result = 31 * result + asciiDocAttributes.hashCode();
     return result;
   }
 

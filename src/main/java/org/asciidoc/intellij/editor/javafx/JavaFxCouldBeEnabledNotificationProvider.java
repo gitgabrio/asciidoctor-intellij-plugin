@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class JavaFxCouldBeEnabledNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel> implements DumbAware {
+
   private static final Key<EditorNotificationPanel> KEY = Key.create("AsciiDoc JavaFX Preview Could Be Enabled");
 
   private static final String DONT_ASK_TO_CHANGE_PROVIDER_TYPE_KEY = "asciidoc.do.not.ask.to.change.preview.provider";
@@ -53,13 +54,13 @@ public class JavaFxCouldBeEnabledNotificationProvider extends EditorNotification
         final boolean isSuccess = availabilityInfo.checkAvailability(panel);
         if (isSuccess) {
           asciiDocApplicationSettings.setAsciiDocPreviewSettings(new AsciiDocPreviewSettings(
-              oldPreviewSettings.getSplitEditorLayout(),
-              new JavaFxHtmlPanelProvider().getProviderInfo(),
-              oldPreviewSettings.getPreviewTheme()
+            oldPreviewSettings.getSplitEditorLayout(),
+            new JavaFxHtmlPanelProvider().getProviderInfo(),
+            oldPreviewSettings.getPreviewTheme(),
+            oldPreviewSettings.getAsciiDocAttributes()
           ));
           EditorNotifications.updateAll();
-        }
-        else {
+        } else {
           Logger.getInstance(JavaFxCouldBeEnabledNotificationProvider.class).warn("Could not install and apply OpenJFX");
         }
       }

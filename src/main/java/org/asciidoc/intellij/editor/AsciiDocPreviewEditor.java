@@ -49,6 +49,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -58,26 +59,36 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-/** @author Julien Viet */
+/**
+ * @author Julien Viet
+ */
 public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEditor {
 
   public static final NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("asciidoctor",
-      NotificationDisplayType.NONE, true);
+                                                                                   NotificationDisplayType.NONE, true);
 
-  /** single threaded with one task queue (one for each editor window) */
+  /**
+   * single threaded with one task queue (one for each editor window)
+   */
   private final LazyApplicationPoolExecutor LAZY_EXECUTOR = new LazyApplicationPoolExecutor();
 
-  /** Indicates whether the HTML preview is obsolete and should regenerated from the AsciiDoc {@link #document}. */
+  /**
+   * Indicates whether the HTML preview is obsolete and should regenerated from the AsciiDoc {@link #document}.
+   */
   private transient String currentContent = "";
 
   private transient int targetLineNo = 0;
 
   private transient int currentLineNo = 0;
 
-  /** The {@link Document} previewed in this editor. */
+  /**
+   * The {@link Document} previewed in this editor.
+   */
   protected final Document document;
 
-  /** The directory which holds the temporary images. */
+  /**
+   * The directory which holds the temporary images.
+   */
   protected final Path tempImagesPath;
 
   @NotNull
@@ -89,7 +100,9 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
   @NotNull
   private final Alarm mySwingAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
 
-  /** . */
+  /**
+   * .
+   */
   private FutureTask<AsciiDoc> asciidoc = new FutureTask<AsciiDoc>(new Callable<AsciiDoc>() {
     public AsciiDoc call() throws Exception {
       File baseDir = new File("");
@@ -99,7 +112,7 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
         baseDir = new File(parent.getCanonicalPath());
       }
       return new AsciiDoc(baseDir,
-        tempImagesPath, FileDocumentManager.getInstance().getFile(document).getName());
+                          tempImagesPath, FileDocumentManager.getInstance().getFile(document).getName());
     }
   });
 
@@ -120,14 +133,12 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
             currentLineNo = targetLineNo;
             myPanel.scrollToLine(targetLineNo, document.getLineCount());
           }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           String message = "Error rendering asciidoctor: " + ex.getMessage();
           Notification notification = NOTIFICATION_GROUP.createNotification("Error rendering asciidoctor", message,
-              NotificationType.ERROR, null);
+                                                                            NotificationType.ERROR, null);
           // increase event log counter
           notification.setImportant(true);
           Notifications.Bus.notify(notification);
@@ -150,7 +161,8 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
     if (provider.isAvailable() != AsciiDocHtmlPanelProvider.AvailabilityInfo.AVAILABLE) {
       settings.setAsciiDocPreviewSettings(new AsciiDocPreviewSettings(settings.getAsciiDocPreviewSettings().getSplitEditorLayout(),
-          AsciiDocPreviewSettings.DEFAULT.getHtmlPanelProviderInfo(), settings.getAsciiDocPreviewSettings().getPreviewTheme()));
+                                                                      AsciiDocPreviewSettings.DEFAULT.getHtmlPanelProviderInfo(), settings.getAsciiDocPreviewSettings().getPreviewTheme(),
+                                                                      settings.getAsciiDocPreviewSettings().getAsciiDocAttributes()));
 
       /* the following will not work, IntellIJ will show the error "parent must be showing" when this is
          tiggered during startup. */
@@ -233,7 +245,7 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
     }
 
     final AsciiDocHtmlPanel newPanel = newPanelProvider.createHtmlPanel(document, imagesDir);
-    if(oldPanel != null) {
+    if (oldPanel != null) {
       newPanel.setEditor(oldPanel.getEditor());
     }
     panelWrapper.add(newPanel.getComponent(), BorderLayout.CENTER);
@@ -260,7 +272,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Get the editor displayable name.
-   *
    * @return <code>AsciiDoc</code>
    */
   @NotNull
@@ -273,7 +284,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
    * Get the state of the editor.
    * <p/>
    * Just returns {@link FileEditorState#INSTANCE} as {@link AsciiDocPreviewEditor} is stateless.
-   *
    * @param level the level.
    * @return {@link FileEditorState#INSTANCE}
    * @see #setState(com.intellij.openapi.fileEditor.FileEditorState)
@@ -287,7 +297,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
    * Set the state of the editor.
    * <p/>
    * Does not do anything as {@link AsciiDocPreviewEditor} is stateless.
-   *
    * @param state the new state.
    * @see #getState(com.intellij.openapi.fileEditor.FileEditorStateLevel)
    */
@@ -296,7 +305,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Indicates whether the document content is modified compared to its file.
-   *
    * @return {@code false} as {@link AsciiDocPreviewEditor} is read-only.
    */
   public boolean isModified() {
@@ -305,7 +313,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Indicates whether the editor is valid.
-   *
    * @return {@code true} if {@link #document} content is readable.
    */
   public boolean isValid() {
@@ -334,7 +341,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
    * Add specified listener.
    * <p/>
    * Does nothing.
-   *
    * @param listener the listener.
    */
   public void addPropertyChangeListener(@NotNull PropertyChangeListener listener) {
@@ -344,7 +350,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
    * Remove specified listener.
    * <p/>
    * Does nothing.
-   *
    * @param listener the listener.
    */
   public void removePropertyChangeListener(@NotNull PropertyChangeListener listener) {
@@ -352,7 +357,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Get the background editor highlighter.
-   *
    * @return {@code null} as {@link AsciiDocPreviewEditor} does not require highlighting.
    */
   @Nullable
@@ -362,7 +366,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Get the current location.
-   *
    * @return {@code null} as {@link AsciiDocPreviewEditor} is not navigable.
    */
   @Nullable
@@ -372,7 +375,6 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
 
   /**
    * Get the structure view builder.
-   *
    * @return TODO {@code null} as parsing/PSI is not implemented.
    */
   @Nullable
@@ -380,7 +382,9 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
     return null;
   }
 
-  /** Dispose the editor. */
+  /**
+   * Dispose the editor.
+   */
   public void dispose() {
     Disposer.dispose(this);
     if (tempImagesPath != null) {
@@ -398,6 +402,7 @@ public class AsciiDocPreviewEditor extends UserDataHolderBase implements FileEdi
   }
 
   private class MyUpdatePanelOnSettingsChangedListener implements AsciiDocApplicationSettings.SettingsChangedListener {
+
     @Override
     public void onSettingsChange(@NotNull AsciiDocApplicationSettings settings) {
       final AsciiDocHtmlPanelProvider newPanelProvider = retrievePanelProvider(settings);
